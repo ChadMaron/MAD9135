@@ -16,6 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var lon;
+var lat;
 var app = {
     // Application Constructor
     initialize: function() {
@@ -34,6 +36,7 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+		navigator.geolocation.getCurrentPosition(onSuccess, onError);
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
@@ -47,3 +50,48 @@ var app = {
         console.log('Received Event: ' + id);
     }
 };
+function onSuccess(position){
+	var element = document.getElementById('geolocation');
+        element.innerHTML = 'Latitude: '           + position.coords.latitude              + '<br />' +
+                            'Longitude: '          + position.coords.longitude             + '<br />';
+	
+	lon = position.coords.longitude;
+	console.log(lon);
+	lat = position.coords.latitude;
+	console.log(lat);
+	var button = document.getElementById('button');
+		button.addEventListener("click", boop);
+}
+function onError(){
+	alert('code: '    + error.code    + '\n' +
+              'message: ' + error.message + '\n');
+}
+
+function boop(){
+	var request = new XMLHttpRequest();
+	console.log(request.readyState);
+	console.log("http://open.mapquestapi.com/geocoding/v1/reverse?" + "key=Fmjtd|luur2hurn0%2Cbg%3Do5-9wasly&location=" + lat + "," + lon);
+	request.open("GET", "http://open.mapquestapi.com/geocoding/v1/reverse?" + "key=Fmjtd|luur2hurn0%2Cbg%3Do5-9wasly&location=" + lat + "," + lon, true);
+	request.onreadystatechange = function() {
+	console.log(request.readyState);
+	//alert("TESTING");
+	if (request.readyState === 4){
+				if (request.status === 200 || request.status === 0) {
+					console.log("IT IS WORKING!?");
+					//console.log("response: " + request.responseText);
+					alert("try now");
+					console.log(request.responseText);
+					var location = JSON.parse(request.responseText);
+					console.log(location.results[0].locations[0].adminArea5);
+				}
+			}
+			else{
+				console.log(request.readyState);
+				console.log("This isn't working.");
+			}
+	};	
+	request.send();
+	
+	
+	alert("CRACK");
+}
